@@ -12,3 +12,28 @@ Content-Type: application/json
 {
     "body": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec qu"
 }
+
+###
+POST http://localhost:8080/api/validate_chirp
+Content-Type: application/json
+
+{
+  "body": "This is a kerfuffle opinion I need to share with the world"
+}
+
+###
+POST http://localhost:8080/api/validate_chirp
+Content-Type: application/json
+
+{
+  "body": "I really need a kerfuffle to go to bed sooner, Fornax !"
+}
+
+
+###
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}

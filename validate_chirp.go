@@ -14,6 +14,10 @@ func handlerValidate(w http.ResponseWriter, r *http.Request){
 		Valid bool `json:"valid"`
 	}
 
+	type containedProfanity struct{
+		Cleaned_Body string `json:"cleaned_body"`
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -28,8 +32,16 @@ func handlerValidate(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, returnVals{
-		Valid:true,
+	strs, neededCleaning := filterProfanity(params.Body)
+	if neededCleaning == true{
+		respondWithJSON(w, http.StatusOK, containedProfanity{
+			Cleaned_Body: strs,
+		})
+		return
+	}
+	
+	respondWithJSON(w, http.StatusOK, containedProfanity{
+		Cleaned_Body: params.Body,
 	})
 
 }

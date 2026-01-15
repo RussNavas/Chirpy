@@ -1,21 +1,40 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"sync/atomic"
+	"os"
+	"github.com/Chirpy/internal/database"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type apiConfig struct{
 		fileserverHits atomic.Int32
+		dbPtr *database.Queries
 	}
 
 func main() {
+	// load env variables i.e. get connection string
+	godotenv.Load()
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil{
+		log.Fatalf("error opening postgresDB: %v\n", err)
+	}
+
+	// create const for root and port
 	const filepathRoot = "."
 	const port = "8080"
 
+	// create ptr to queries to be added to apiConfig
+	dbQueries := database.New(db)
+
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
+		dbPtr: dbQueries,
 	}
 
 	// APP
@@ -26,7 +45,7 @@ func main() {
 	// API
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("POST /api/validate_chirp", handlerValidate)
-
+	mux.HandleFunc("POST /api/users", handlerCreateUser)
 
 	// ADMIN
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
