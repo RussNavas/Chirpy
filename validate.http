@@ -21,5 +21,10 @@ Content-Type: application/json
   "user_id": "{{user_id}}"
 }
 
+### Get all chrips
+GET http://localhost:8080/api/chirps
+Content-Type: application/json
+
+
 ### Reset Database (Clean Up)
 POST http://localhost:8080/admin/reset

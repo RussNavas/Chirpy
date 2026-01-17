@@ -46,6 +46,7 @@ func main() {
 
 	// API
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetAllChrips)
 	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerCreateChirp)
 
