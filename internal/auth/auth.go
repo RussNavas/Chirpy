@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"crypto/rand" 
+	"encoding/hex"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
@@ -80,4 +82,16 @@ func GetBearerToken(headers http.Header) (string, error){
 		return "", fmt.Errorf("malformed authorization header")
 	}
 	return splitAuth[1], nil
+}
+
+func MakeRefreshToken() (string, error){
+	arr := make([]byte, 32)
+	_, err := rand.Read(arr)
+	if err != nil{
+		return "", fmt.Errorf("couldnt rand.Read into arr: %v", err)
+	}
+
+	numStr := hex.EncodeToString(arr)
+
+	return numStr, nil
 }
