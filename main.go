@@ -16,6 +16,7 @@ type apiConfig struct{
 		dbPtr *database.Queries
 		platform string
 		secret string
+		polkaKey string
 	}
 
 func main() {
@@ -39,6 +40,7 @@ func main() {
 		dbPtr: dbQueries,
 		platform: os.Getenv("PLATFORM"),
 		secret: os.Getenv("SECRET"),
+		polkaKey: os.Getenv("POLKA_KEY"),
 	}
 
 	// APP
@@ -55,6 +57,7 @@ func main() {
 	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerWebhooks)
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteChirp)
 

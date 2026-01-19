@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"sort"
 
 	"github.com/Chirpy/internal/auth"
 	"github.com/Chirpy/internal/database"
@@ -102,6 +103,45 @@ func getCleanedBody(body string, badWords map[string]struct{}) string {
 
 
 func (cfg *apiConfig) handlerGetAllChrips(w http.ResponseWriter, r *http.Request){
+	sortby := r.URL.Query().Get("sort")
+	authorIDStr := r.URL.Query().Get("author_id")
+	if authorIDStr != ""{
+		parsedID , err := uuid.Parse(authorIDStr)
+		if err != nil{
+		respondWithError(w, http.StatusInternalServerError, "Error parsing author id", err)
+		return			
+		}
+		userChrips, err := cfg.dbPtr.GetUserChirps(r.Context(), parsedID)
+		if err != nil{
+			respondWithError(w, http.StatusInternalServerError, "Error getting authors chirps", err)
+		return				
+		}
+
+		cArray := []Chirp{}
+
+		for _, c := range userChrips{
+		chrp := Chirp{
+			ID: 		c.ID,
+			CreatedAt: 	c.CreatedAt,
+			UpdatedAt: 	c.UpdatedAt,
+			UserID: 	c.UserID,
+			Body: 	c.Body,
+		}
+
+		cArray = append(cArray, chrp)
+	}
+
+	if sortby == "desc"{
+		sort.Slice(cArray, func(i, j int) bool {
+			return cArray[i].CreatedAt.After(cArray[j].CreatedAt)
+		})
+	}
+
+	respondWithJSON(w, http.StatusOK, cArray)
+	return
+	}
+
+
 	chirpsArray := []Chirp{}
 	chirpsInDB, err := cfg.dbPtr.GetAllChrips(r.Context())
 	if err != nil{
@@ -119,6 +159,12 @@ func (cfg *apiConfig) handlerGetAllChrips(w http.ResponseWriter, r *http.Request
 		}
 
 		chirpsArray = append(chirpsArray, chrp)
+	}
+
+	if sortby == "desc"{
+		sort.Slice(chirpsArray, func(i, j int) bool {
+			return chirpsArray[i].CreatedAt.After(chirpsArray[j].CreatedAt)
+		})
 	}
 
 	respondWithJSON(w, http.StatusOK, chirpsArray)
